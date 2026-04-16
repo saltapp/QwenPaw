@@ -663,6 +663,13 @@ if os.path.isdir(_CONSOLE_STATIC_DIR):
             StaticFiles(directory=str(_assets_dir)),
             name="assets",
         )
+        # Also expose assets under /console/assets so relative frontend paths
+        # keep working when the SPA base path is /console/.
+        app.mount(
+            "/console/assets",
+            StaticFiles(directory=str(_assets_dir)),
+            name="console-assets",
+        )
 
     @app.get("/console")
     @app.get("/console/")

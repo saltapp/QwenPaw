@@ -5,6 +5,23 @@
     <link rel="icon" type="image/svg+xml" href="/online.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>QwenPaw Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lato:wght@400;700&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap"
+    />
+    <script>
+      (function () {
+        var path = window.location.pathname || "/";
+        // Treat the current path as a directory even when URL has no trailing slash,
+        // so relative assets/API requests keep any proxy prefix (e.g. /proxy/8088).
+        var basePath = path.endsWith("/") ? path : path + "/";
+        var base = document.createElement("base");
+        base.setAttribute("href", basePath);
+        document.head.appendChild(base);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

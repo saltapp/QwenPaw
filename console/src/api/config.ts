@@ -10,9 +10,16 @@ const AUTH_TOKEN_KEY = "qwenpaw_auth_token";
  */
 export function getApiUrl(path: string): string {
   const base = VITE_API_BASE_URL || "";
-  const apiPrefix = "/api";
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  return `${base}${apiPrefix}${normalizedPath}`;
+  if (base) {
+    return `${base}/api${normalizedPath}`;
+  }
+  // Resolve against document base URI so proxy prefixes (if any)
+  // are preserved automatically.
+  if (typeof document !== "undefined") {
+    return new URL(`api${normalizedPath}`, document.baseURI).toString();
+  }
+  return `/api${normalizedPath}`;
 }
 
 /**
