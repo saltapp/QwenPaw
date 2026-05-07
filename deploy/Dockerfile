@@ -85,6 +85,7 @@ ENV PATH="/app/venv/bin:$PATH"
 
 COPY pyproject.toml setup.py README.md ./
 COPY src ./src
+COPY ai_manus_channel/__init__.py ./working/custom_channels/ai_manus
 # Inject console dist from build stage (repo does not commit dist).
 COPY --from=console-builder /app/console/dist/ ./src/qwenpaw/console/
 # Speed up Python package installation with uv.

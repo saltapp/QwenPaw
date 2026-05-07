@@ -111,3 +111,6 @@ src/.hypothesis/
 
 # Worktrees
 .worktrees/
+.gitnexus/
+.graphify_detect.json
+.graphify_python
