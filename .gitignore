@@ -114,3 +114,6 @@ src/.hypothesis/
 .gitnexus/
 .graphify_detect.json
 .graphify_python
+.gitnexus
+graphify-out/
+.graphify*

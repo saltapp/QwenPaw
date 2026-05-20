@@ -3,6 +3,7 @@
 # -----------------------------------------------------------------------------
 FROM agentscope-registry.ap-southeast-1.cr.aliyuncs.com/agentscope/node:slim AS console-builder
 WORKDIR /app
+ENV NODE_OPTIONS=--max-old-space-size=4096
 COPY console /app/console
 RUN cd /app/console && npm ci --include=dev && npm run build
 
@@ -27,7 +28,29 @@ ENV QWENPAW_ENABLED_CHANNELS=${QWENPAW_ENABLED_CHANNELS}
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y --fix-missing \
+RUN set -eux; \
+    printf '%s\n' \
+      'Acquire::Retries "5";' \
+      'Acquire::http::Timeout "30";' \
+      'Acquire::https::Timeout "30";' \
+      'APT::Install-Recommends "false";' \
+      > /etc/apt/apt.conf.d/80qwenpaw-retries; \
+    if [ -f /etc/apt/sources.list.d/debian.sources ]; then \
+      sed -i \
+        -e 's|http://deb.debian.org/debian|http://mirrors.aliyun.com/debian|g' \
+        -e 's|http://security.debian.org/debian-security|http://mirrors.aliyun.com/debian-security|g' \
+        -e 's|http://deb.debian.org/debian-security|http://mirrors.aliyun.com/debian-security|g' \
+        /etc/apt/sources.list.d/debian.sources; \
+    fi; \
+    if [ -f /etc/apt/sources.list ]; then \
+      sed -i \
+        -e 's|http://deb.debian.org/debian|http://mirrors.aliyun.com/debian|g' \
+        -e 's|http://security.debian.org/debian-security|http://mirrors.aliyun.com/debian-security|g' \
+        -e 's|http://deb.debian.org/debian-security|http://mirrors.aliyun.com/debian-security|g' \
+        /etc/apt/sources.list; \
+    fi
+
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     curl  \
     python3  \
     python3-pip  \
@@ -41,6 +64,9 @@ RUN apt-get update && apt-get install -y --fix-missing \
     xfce4 \
     xfce4-terminal \
     xvfb \
+    x11vnc \
+    novnc \
+    websockify \
     dbus-x11 \
     fonts-wqy-zenhei \
     fonts-wqy-microhei \
@@ -48,7 +74,7 @@ RUN apt-get update && apt-get install -y --fix-missing \
   && apt-get clean
 
 
-RUN apt-get update && apt-get install -y --fix-missing \
+RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     chromium \
     chromium-sandbox \
     libx11-xcb1 \
@@ -85,12 +111,13 @@ ENV PATH="/app/venv/bin:$PATH"
 
 COPY pyproject.toml setup.py README.md ./
 COPY src ./src
-COPY ai_manus_channel/__init__.py ./working/custom_channels/ai_manus
+COPY ai_manus_channel /opt/qwenpaw/custom_channels/ai_manus
 # Inject console dist from build stage (repo does not commit dist).
 COPY --from=console-builder /app/console/dist/ ./src/qwenpaw/console/
 # Speed up Python package installation with uv.
 COPY --from=agentscope-registry.ap-southeast-1.cr.aliyuncs.com/agentscope/uv:latest /uv /bin/uv
-RUN uv pip install --no-cache-dir . && rm -rf ./build
+ENV UV_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/
+RUN uv pip install . && rm -rf ./build
 
 
 # QwenPaw app port (default 8088). Override at runtime with -e QWENPAW_PORT=3000.
@@ -99,6 +126,6 @@ ENV QWENPAW_PORT=8088
 COPY deploy/config/supervisord.conf.template /etc/supervisor/conf.d/supervisord.conf.template
 COPY --chmod=755 deploy/entrypoint.sh /entrypoint.sh
 
-EXPOSE 8088
+EXPOSE 8088 6080
 
 CMD ["/entrypoint.sh"]

@@ -28,6 +28,7 @@
   min-height: 0;
   height: 100%;
   width: 100%;
+  transition: width 0.2s ease;
   overflow-y: auto;
   overflow-x: hidden;
 
@@ -74,6 +75,12 @@
 
   :global(.dark-mode) & {
     scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  }
+}
+
+:global(body.qwenpaw-desktop-monitor-open) {
+  .chatMessagesArea {
+    width: calc(100% - var(--qwenpaw-desktop-monitor-width));
   }
 }
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { IconButton } from "@agentscope-ai/design";
 import {
+  SparkAdvancedMonitoringLine,
   SparkHistoryLine,
   SparkNewChatFill,
   SparkSearchLine,
@@ -9,6 +10,7 @@ import { useChatAnywhereSessions } from "@agentscope-ai/chat";
 import { useTranslation } from "react-i18next";
 import { Flex, Tooltip } from "antd";
 import ChatSessionDrawer from "../ChatSessionDrawer";
+import DesktopMonitorDrawer from "../DesktopMonitorDrawer";
 import ChatSearchPanel from "../ChatSearchPanel";
 import PlanPanel from "../../../../components/PlanPanel";
 import { planApi } from "../../../../api/modules/plan";
@@ -34,6 +36,7 @@ const ChatActionGroup: React.FC = () => {
   const { t } = useTranslation();
   const [historyOpen, setHistoryOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [desktopMonitorOpen, setDesktopMonitorOpen] = useState(false);
   const [planOpen, setPlanOpen] = useState(false);
   const [planEnabled, setPlanEnabled] = useState(false);
   const { createSession } = useChatAnywhereSessions();
@@ -77,6 +80,16 @@ const ChatActionGroup: React.FC = () => {
           onClick={() => setSearchOpen(true)}
         />
       </Tooltip>
+      <Tooltip
+        title={t("chat.desktopMonitorTooltip", "Monitor desktop")}
+        mouseEnterDelay={0.5}
+      >
+        <IconButton
+          bordered={false}
+          icon={<SparkAdvancedMonitoringLine />}
+          onClick={() => setDesktopMonitorOpen(true)}
+        />
+      </Tooltip>
       <Tooltip title={t("chat.chatHistoryTooltip")} mouseEnterDelay={0.5}>
         <IconButton
           bordered={false}
@@ -89,6 +102,10 @@ const ChatActionGroup: React.FC = () => {
         onClose={() => setHistoryOpen(false)}
       />
       <ChatSearchPanel open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <DesktopMonitorDrawer
+        open={desktopMonitorOpen}
+        onClose={() => setDesktopMonitorOpen(false)}
+      />
       {planEnabled && (
         <PlanPanel open={planOpen} onClose={() => setPlanOpen(false)} />
       )}
